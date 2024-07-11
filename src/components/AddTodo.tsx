@@ -1,43 +1,45 @@
-'use client';
+import React, { Dispatch, SetStateAction, useEffect, useRef } from 'react';
 
-import { useState } from 'react';
-import { useSetRecoilState } from 'recoil';
+interface AddTodoProps {
+  input: string;
+  setInput: Dispatch<SetStateAction<string>>;
+  onClick: () => void;
+}
 
-import { Todo, todoState } from '@/atoms/todoState';
+export const AddTodo: React.FC<AddTodoProps> = ({ input, setInput, onClick }) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-export const AddTodo: React.FC = () => {
-  const [input, setInput] = useState('');
-  const setTodos = useSetRecoilState(todoState);
-
-  const addTodo = () => {
-    if (input === '') {
-      return;
+  useEffect(() => {
+    if (textareaRef.current) {
+      // 初期幅と高さを設定
+      textareaRef.current.style.width = '450px';
+      textareaRef.current.style.height = '100px';
     }
+  }, []);
 
-    setTodos((oldTodos) => [
-      ...oldTodos,
-      { id: getId(oldTodos), title: input, isCompleted: false },
-    ]);
-    setInput('');
-  };
-
-  const getId = (todos: Todo[]) => (todos.length > 0 ? todos[todos.length - 1].id + 1 : 1);
+  useEffect(() => {
+    if (textareaRef.current) {
+      // 入力に応じて高さを自動調整
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [input]);
 
   return (
-    <div className='flex mt-4 mb-4'>
-      <input
-        className='border rounded w-full py-2 px-3 mr-4 text-gray-500'
-        type='text'
+    <div className='flex flex-col mt-4 mb-4'>
+      <textarea
+        ref={textareaRef}
+        className='border rounded py-2 px-3 text-gray-500'
         value={input}
         onChange={(e) => setInput(e.target.value)}
+        rows={1}
       />
       <button
-        className='flex-no-shrink p-2 border-2 rounded text-blue-400 border-blue-400 hover:text-white hover:bg-blue-400'
-        onClick={addTodo}
+        className='flex-no-shrink p-2 mt-2 border-2 rounded text-blue-400 border-blue-400 hover:text-white hover:bg-blue-400'
+        onClick={onClick}
       >
-        Add
+        Save
       </button>
     </div>
   );
 };
-
